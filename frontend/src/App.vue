@@ -11,6 +11,7 @@ const tab = ref('dashboard')
   <div class="min-h-screen bg-base-200">
     <div class="navbar bg-base-100 shadow-sm">
       <div class="navbar-start">
+        <img src="/favicon.svg" alt="freepool" class="w-7 h-7 rounded-lg ms-2" />
         <span class="text-lg font-bold px-2">freepool</span>
         <span class="badge badge-soft badge-secondary ms-1">免费额度聚合网关</span>
       </div>
