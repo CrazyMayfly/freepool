@@ -1,0 +1,30 @@
+# 档位定义：调用方 model 传档位名（如 "fast"）时按链路顺序自动选择模型；
+# 链路中某模型额度耗尽（403 FreeTierOnly / 账本余量为 0）或已过期时，自动切换到下一个。
+# 具体模型名传进来时也会在其所属档位内回退。
+#
+# 排序建议：把「最快过期」的模型放链首，优先消耗临期额度避免作废；
+# 同档位可混排多厂商模型（各家免费池相互独立，可扩大总可用额度）。
+# 保存后立即生效（看板「配置」页可视化编辑本文件）。
+tiers:
+  fast:
+    display_name: 快速档（flash 系）
+    models:
+      - qwen3.7-flash
+      - qwen3.7-flash-2026-07-15
+      - deepseek-v4-flash-0731
+      - qwen3.8-flash
+      - deepseek-v4.1-flash
+  plus:
+    display_name: 均衡档（plus 系）
+    models:
+      - qwen3.8-27b
+      - qwen3.8-2.4t-a95b
+      - qwen3.8-omni-flash
+  max:
+    display_name: 旗舰档（max 系）
+    models:
+      - qwen3.8-max
+      - deepseek-v4-pro-0813
+      - kimi-k3
+      - glm-5.3
+      - qwen3.8-max-0902

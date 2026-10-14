@@ -1,0 +1,19 @@
+# 免费额度种子规则
+#
+# default_*：未单独列出的模型使用默认值。
+#   default_effective_from: null 时，起算日优先取官方目录里模型的发布时间（ListModels
+#   同步得到），否则取该模型首次经过网关的日期。
+# models：按模型覆盖。常见用途是把 effective_from 改成你账号的实际起算日
+#   （控制台「免费额度」页可查），或预先填入 used_offset（接入网关前已消耗的量）。
+#
+# 也可以不手动维护本文件：看板「模型目录 → 编辑」里逐个调整，或运行
+#   scripts/calibrate_from_console.py 从控制台数据批量校准（推荐，会把真实
+#   起算日写回本文件）。
+default_total_tokens: 1000000
+default_valid_days: 90
+default_effective_from: null
+models:
+  # 示例：为某模型指定与默认值不同的规则
+  # qwen3.8-flash:
+  #   effective_from: 2026-08-27   # 到期日 2026-11-25 减 90 天
+  #   used_offset: 476000          # 接入网关前已消耗（可选）
