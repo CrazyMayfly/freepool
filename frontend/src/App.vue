@@ -45,9 +45,11 @@ const tab = ref('dashboard')
     </div>
 
     <main class="p-4 max-w-7xl mx-auto">
-      <Dashboard v-if="tab === 'dashboard'" />
-      <Models v-else-if="tab === 'models'" />
-      <Config v-else />
+      <KeepAlive>
+        <Dashboard v-if="tab === 'dashboard'" />
+        <Models v-else-if="tab === 'models'" />
+        <Config v-else />
+      </KeepAlive>
     </main>
   </div>
 </template>

@@ -20,6 +20,8 @@ def health():
 
 @router.get("/api/catalog")
 def api_catalog(db=Depends(get_db)):
+    """目录列表。只返回看板表格用到的字段（prices/description 等大字段不下发，
+    354 个模型的完整目录从 ~360KB 减到 ~100KB）。"""
     limits = {
         row.model: row
         for row in db.execute(select(CatalogLimit).where(CatalogLimit.scope == "account")).scalars()
@@ -33,16 +35,10 @@ def api_catalog(db=Depends(get_db)):
                 "model": cat.model,
                 "name": cat.name,
                 "provider": cat.provider,
-                "inference_provider": cat.inference_provider,
                 "capabilities": cat.capabilities or [],
-                "features": cat.features or [],
                 "context_window": cat.context_window,
-                "max_input_tokens": cat.max_input_tokens,
-                "max_output_tokens": cat.max_output_tokens,
                 "published_time": cat.published_time.isoformat() if cat.published_time else None,
                 "offline_time": cat.offline_time.isoformat() if cat.offline_time else None,
-                "equivalent_snapshot": cat.equivalent_snapshot,
-                "prices": cat.prices,
                 "synced_at": cat.synced_at.isoformat(timespec="seconds") if cat.synced_at else None,
                 "rate_limit": {
                     "request_limit": lim.request_limit if lim else None,

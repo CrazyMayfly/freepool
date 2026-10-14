@@ -1,11 +1,13 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onActivated, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { api } from '../api.js'
 
 const items = ref([])
 const keyword = ref('')
 const syncing = ref(false)
 const syncMsg = ref('')
+const page = ref(1)
+const PAGE_SIZE = 50
 
 // 额度规则编辑弹窗
 const editing = ref(null)
@@ -64,13 +66,37 @@ const filtered = computed(() => {
   )
 })
 
+const paged = computed(() => {
+  const start = (page.value - 1) * PAGE_SIZE
+  return filtered.value.slice(start, start + PAGE_SIZE)
+})
+
+const totalPages = computed(() => Math.max(1, Math.ceil(filtered.value.length / PAGE_SIZE)))
+
+watch([keyword, () => items.value.length], () => {
+  page.value = 1
+})
+
+function gotoPage(p) {
+  page.value = Math.min(Math.max(1, p), totalPages.value)
+}
+
 function onKeydown(e) {
   if (e.key === 'Escape' && editing.value) editing.value = null
 }
 
+let everActivated = false
 onMounted(() => {
   load()
   window.addEventListener('keydown', onKeydown)
+})
+onActivated(() => {
+  // KeepAlive 下首次 activated 紧跟 mounted，跳过避免重复拉取；之后切回时静默刷新
+  if (!everActivated) {
+    everActivated = true
+    return
+  }
+  load()
 })
 onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 </script>
@@ -108,7 +134,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
               </tr>
             </thead>
             <tbody>
-              <tr v-for="i in filtered" :key="i.model">
+              <tr v-for="i in paged" :key="i.model">
                 <td class="font-mono text-xs">{{ i.model }}</td>
                 <td class="text-xs opacity-70 max-w-40 truncate">{{ i.name }}</td>
                 <td>
@@ -137,6 +163,21 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
               </tr>
             </tbody>
           </table>
+        </div>
+        <div class="flex justify-center mt-3" v-if="totalPages > 1">
+          <div class="join">
+            <button class="join-item btn btn-sm" :disabled="page === 1" @click="gotoPage(page - 1)">«</button>
+            <button
+              v-for="p in totalPages"
+              :key="p"
+              class="join-item btn btn-sm"
+              :class="{ 'btn-active': p === page }"
+              @click="gotoPage(p)"
+            >
+              {{ p }}
+            </button>
+            <button class="join-item btn btn-sm" :disabled="page === totalPages" @click="gotoPage(page + 1)">»</button>
+          </div>
         </div>
       </div>
     </div>

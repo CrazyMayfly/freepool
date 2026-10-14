@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onActivated, onMounted, ref } from 'vue'
 import { api, fmtTokens } from '../api.js'
 
 const info = ref(null)
@@ -129,7 +129,16 @@ async function checkUpstream() {
   }
 }
 
+let everActivated = false
 onMounted(load)
+onActivated(() => {
+  // 首次 activated 与 mounted 重复，跳过；之后切回时刷新
+  if (!everActivated) {
+    everActivated = true
+    return
+  }
+  load()
+})
 </script>
 
 <template>

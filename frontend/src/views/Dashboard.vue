@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onActivated, onBeforeUnmount, onDeactivated, onMounted, ref } from 'vue'
 import { api, fmtTokens, STATUS_META } from '../api.js'
 import UsageChart from '../components/UsageChart.vue'
 
@@ -31,11 +31,33 @@ async function refresh() {
   }
 }
 
+let timer = null
+function startAutoRefresh() {
+  if (!timer) timer = setInterval(refresh, 30_000)
+}
+function stopAutoRefresh() {
+  if (timer) {
+    clearInterval(timer)
+    timer = null
+  }
+}
+
+let everActivated = false
 onMounted(() => {
   refresh()
-  const timer = setInterval(refresh, 30_000)
-  onBeforeUnmount(() => clearInterval(timer))
+  startAutoRefresh()
 })
+// KeepAlive 下切走暂停轮询，切回立即刷新并恢复（首次 activated 与 mounted 重复，跳过）
+onActivated(() => {
+  if (!everActivated) {
+    everActivated = true
+    return
+  }
+  refresh()
+  startAutoRefresh()
+})
+onDeactivated(stopAutoRefresh)
+onBeforeUnmount(stopAutoRefresh)
 
 const totals = computed(() => overview.value?.totals ?? {})
 const models = computed(() => overview.value?.models ?? [])
